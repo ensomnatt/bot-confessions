@@ -29,16 +29,18 @@ func New(token string, adminsChatIDstr string) (int64, tg.UpdatesChannel, *tg.Bo
   return adminsChatID, updates, bot
 }
 
-func CreateVars(u tg.Update) (chatID, usrID, msgID int64, msgText, usrName string, msgPhoto []tg.PhotoSize, msgVideo *tg.Video, msgVoice *tg.Voice, msgVideoNote *tg.VideoNote) {
+func CreateVars(u tg.Update) (chatID, msgID int64, msgText, usrName string, msgPhoto []tg.PhotoSize, msgVideo *tg.Video, msgVoice *tg.Voice, msgVideoNote *tg.VideoNote, replyToMsgID int64) {
   chatID = u.Message.Chat.ID
   msgText = u.Message.Text
   usrName = u.SentFrom().UserName
-  usrID = u.SentFrom().ID
   msgPhoto = u.Message.Photo
   msgID = int64(u.Message.MessageID)
   msgVideo = u.Message.Video
   msgVoice = u.Message.Voice
   msgVideoNote = u.Message.VideoNote
+  if u.Message.ReplyToMessage != nil {
+    replyToMsgID = int64(u.Message.ReplyToMessage.MessageID)
+  } 
 
-  return chatID, usrID, msgID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote
+  return chatID, msgID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote, replyToMsgID
 }
