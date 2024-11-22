@@ -35,6 +35,7 @@ func main() {
     } else if db.CheckBan(u.Message.From.ID) {
       msg := tg.NewMessage(u.Message.Chat.ID, texts.Banned)
       bot.Send(msg)
+      continue
     }
 
     chatID, msgID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote, replyMsgId, usrID := initbot.CreateVars(u)
