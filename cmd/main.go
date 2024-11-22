@@ -18,15 +18,13 @@ func main() {
     log.Fatal(err)
   }
 
-  //connStr := os.Getenv("DB_CONN_STR")
-  //log.Println(connStr)
-
+  connStr := os.Getenv("DB_CONN_STR")
   token := os.Getenv("TOKEN")
   adminsChatIDstr := os.Getenv("ADM_CHAT")
 
   //init bot and db
   adminsChatID, updates, bot := initbot.New(token, adminsChatIDstr)
-  db.Init()
+  db.Init(connStr)
   defer db.Close()
 
   //start take updates
