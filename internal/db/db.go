@@ -26,15 +26,35 @@ func Init() {
     log.Fatal("cannot create table", err)
   }
 
+  //create users table 
+  query = `CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    user_name VARCHAR(50) NOT NULL,
+    banned BOOLEAN DEFAULT FALSE
+  )`
+  _, err = db.Exec(query)
+  if err != nil {
+    log.Fatal("cannot create table", err)
+  }
+
   err = db.Ping()
   if err != nil {
     log.Fatal("cannot ping database", err)
   } 
 }
 
-func Add(msgID, chatID int64) {
+func Add(msgID, chatID, usrID int64, usrName string) {
+  //add to takes
   query := `INSERT INTO takes (msg_id, chat_id) VALUES ($1, $2)`
   _, err := db.Exec(query, msgID, chatID)
+  if err != nil {
+    log.Fatal("cannot add to table", err)
+  }
+
+  //add to users 
+  query = `INSERT INTO users (user_id, user_name) VALUES ($1, $2)`
+  _, err = db.Exec(query, usrID, usrName)
   if err != nil {
     log.Fatal("cannot add to table", err)
   }
@@ -51,6 +71,37 @@ func GetByMsgID(msgID int64) (int64, error) {
     log.Fatal("cannot get from table", err)
   }
   return chatID, err
+}
+
+func Ban(usrID int64) {
+  query := `UPDATE users SET banned = true WHERE user_id = $1`
+  _, err := db.Exec(query, usrID)
+  if err != nil {
+    log.Fatal("cannot ban user", err)
+  }
+
+  log.Println("banned user", usrID)
+}
+
+func UnBan(usrID int64) {
+  query := `UPDATE users SET banned = false WHERE user_id = $1`
+  _, err := db.Exec(query, usrID)
+  if err != nil {
+    log.Fatal("cannot unban user", err)
+  }
+
+  log.Println("unbanned user", usrID)
+}
+
+func CheckBan(usrID int64) bool {
+  var banned bool
+  query := `SELECT banned FROM users WHERE user_id = $1`
+  err := db.QueryRow(query, usrID).Scan(&banned)
+  if err != nil {
+    log.Fatal("cannot get from table", err)
+  }
+
+  return banned
 }
 
 func Close() {

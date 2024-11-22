@@ -4,10 +4,12 @@ import (
 	db "bot-cf-simple/internal/db"
 	"bot-cf-simple/internal/handlers"
 	initbot "bot-cf-simple/internal/initBot"
+  "bot-cf-simple/internal/texts"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+  tg "github.com/OvyFlash/telegram-bot-api"
 )
 
 func main() {
@@ -31,26 +33,29 @@ func main() {
   for u := range updates {
     if u.Message == nil {
       continue
+    } else if db.CheckBan(u.Message.From.ID) {
+      msg := tg.NewMessage(u.Message.Chat.ID, texts.Banned)
+      bot.Send(msg)
     }
 
-    chatID, msgID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote, replyMsgId := initbot.CreateVars(u)
+    chatID, msgID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote, replyMsgId, usrID := initbot.CreateVars(u)
 
     //photos and videos
     if len(msgPhoto) > 0 || msgVideo != nil {
       logFiles(usrName)
-      handlers.Files(chatID, adminsChatID, msgID, bot, usrName)
+      handlers.Files(chatID, adminsChatID, msgID, usrID, bot, usrName)
     }
 
     //voices
     if msgVoice != nil {
       logVoice(usrName)
-      handlers.Voices(chatID, adminsChatID, bot, usrName, *msgVoice)
+      handlers.Voices(chatID, adminsChatID, usrID, bot, usrName, *msgVoice)
     }
 
     //video notes
     if msgVideoNote != nil {
       logVideoNote(usrName)
-      handlers.VideoNotes(chatID, adminsChatID, bot, usrName, *msgVideoNote)
+      handlers.VideoNotes(chatID, adminsChatID, usrID, bot, usrName, *msgVideoNote)
     }
 
     //only text
@@ -66,7 +71,7 @@ func main() {
         default:
           if chatID != adminsChatID {
             logTxt(msgText, usrName)
-            handlers.TakeTxt(chatID, adminsChatID, msgText, usrName, bot)
+            handlers.TakeTxt(chatID, adminsChatID, usrID, msgText, usrName, bot)
           }
         }
       } 

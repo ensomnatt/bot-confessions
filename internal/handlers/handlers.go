@@ -14,7 +14,7 @@ func Start(chatID int64, bot *tg.BotAPI) {
   bot.Send(msg)
 }
 
-func TakeTxt(chatID, adminsChatID int64, msgText, usrName string, bot *tg.BotAPI) {
+func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg.BotAPI) {
   take := strings.Split(msgText, " ")
 
   anon := false
@@ -43,7 +43,7 @@ func TakeTxt(chatID, adminsChatID int64, msgText, usrName string, bot *tg.BotAPI
       log.Println("cannot send message", err)
     }
     //add to db
-    db.Add(int64(msgID.MessageID), chatID)
+    db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
 
     bot.Send(msg2)
     return
@@ -60,7 +60,7 @@ func TakeTxt(chatID, adminsChatID int64, msgText, usrName string, bot *tg.BotAPI
     }
 
     //add to db
-    db.Add(int64(msgID.MessageID), chatID)
+    db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
 
     bot.Send(msg2)
     return
@@ -70,7 +70,7 @@ func TakeTxt(chatID, adminsChatID int64, msgText, usrName string, bot *tg.BotAPI
   }
 }
 
-func Files(chatID, adminsChatID, msgID int64, bot *tg.BotAPI, usrName string) {
+func Files(chatID, adminsChatID, msgID, usrID int64, bot *tg.BotAPI, usrName string) {
   //files
   msg := tg.NewForward(adminsChatID, chatID, int(msgID))
   //user must send a text
@@ -83,12 +83,12 @@ func Files(chatID, adminsChatID, msgID int64, bot *tg.BotAPI, usrName string) {
   }
 
   //add to db
-  db.Add(int64(msgIDbot.MessageID), chatID)
+  db.Add(int64(msgIDbot.MessageID), chatID, usrID, usrName)
 
   bot.Send(msg2)
 }
 
-func Voices(chatID, adminsChatID int64, bot *tg.BotAPI, usrName string, msgVoice tg.Voice) { 
+func Voices(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgVoice tg.Voice) { 
   fileID := msgVoice.FileID
 
   //voices 
@@ -103,12 +103,12 @@ func Voices(chatID, adminsChatID int64, bot *tg.BotAPI, usrName string, msgVoice
   }
 
   //add to db
-  db.Add(int64(msgID.MessageID), chatID)
+  db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
 
   bot.Send(msg2)
 }
 
-func VideoNotes(chatID, adminsChatID int64, bot *tg.BotAPI, usrName string, msgVideoNote tg.VideoNote) { 
+func VideoNotes(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgVideoNote tg.VideoNote) { 
   fileID := msgVideoNote.FileID
   duration := msgVideoNote.Duration
 
@@ -124,7 +124,7 @@ func VideoNotes(chatID, adminsChatID int64, bot *tg.BotAPI, usrName string, msgV
   }
 
   //add to db
-  db.Add(int64(msgID.MessageID), chatID)
+  db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
 
   bot.Send(msg2)
 }
