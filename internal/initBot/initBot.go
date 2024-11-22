@@ -10,16 +10,14 @@ import (
 func New(token string, adminsChatIDstr string) (int64, tg.UpdatesChannel, *tg.BotAPI) {
   adminsChatIDi, err := strconv.Atoi(adminsChatIDstr)
   if err != nil {
-    log.Fatal("can't get admins chat id")
+    log.Fatal("[FATAL]: cannot convert adminsChatIDstr to int")
   }
   adminsChatID := int64(adminsChatIDi)
 
   bot, err := tg.NewBotAPI(token)
   if err != nil {
-    log.Fatal("cant create bot")
+    log.Fatal("[FATAL]: cannot create bot")
   }
-
-  log.Printf("авторизован под %s", bot.Self.UserName)
 
   updateConfig := tg.NewUpdate(0)
   updateConfig.Timeout = 60

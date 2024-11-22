@@ -13,9 +13,10 @@ func Init(connStr string) {
   var err error
   db, err = sql.Open("postgres", connStr)
   if err != nil {
-    log.Fatal("cannot open database", err)
+    log.Fatal("[DB]: [FATAL]: cannot open database")
   }
-
+  
+  //create takes table
   query := `CREATE TABLE IF NOT EXISTS takes (
     id SERIAL PRIMARY KEY,
     msg_id BIGINT NOT NULL,
@@ -24,8 +25,10 @@ func Init(connStr string) {
   )`
   _, err = db.Exec(query)
   if err != nil {
-    log.Fatal("cannot create table", err)
+    log.Fatal("[DB]: [FATAL]: cannot create takes table")
   }
+
+  log.Println("[DB]: [INFO]: takes table created")
 
   //create users table 
   query = `CREATE TABLE IF NOT EXISTS users (
@@ -36,13 +39,17 @@ func Init(connStr string) {
   )`
   _, err = db.Exec(query)
   if err != nil {
-    log.Fatal("cannot create table", err)
+    log.Fatal("[DB]: [FATAL]: cannot create users table")
   }
+
+  log.Println("[DB]: [INFO]: users table created")
 
   err = db.Ping()
   if err != nil {
-    log.Fatal("cannot ping database", err)
-  } 
+    log.Fatal("[DB]: [FATAL]: cannot ping database")
+  }
+
+  log.Println("[DB]: [INFO]: connected to database")
 }
 
 func Add(msgID, chatID, usrID int64, usrName string) {
@@ -50,59 +57,63 @@ func Add(msgID, chatID, usrID int64, usrName string) {
   query := `INSERT INTO takes (msg_id, chat_id, user_id) VALUES ($1, $2, $3)`
   _, err := db.Exec(query, msgID, chatID, usrID)
   if err != nil {
-    log.Fatal("cannot add to table", err)
+    log.Println("[DB]: [ERROR]: cannot add to table")
   }
+
+  log.Println("[DB]: [INFO]: added to table takes ", msgID, chatID, usrID)
 
   //add to users 
   query = `INSERT INTO users (user_id, user_name) VALUES ($1, $2)`
   _, err = db.Exec(query, usrID, usrName)
   if err != nil {
-    log.Fatal("cannot add to table", err)
+    log.Println("[DB]: [ERROR]: cannot add to table")
   }
 
-  log.Println("added to table ", msgID, chatID)
+  log.Println("[DB]: [INFO]: added to table users ", usrID, usrName)
 }
 
-func GetChatIDByMsgID(msgID int64) (int64, error) {
+func GetChatIDByMsgID(msgID int64) (int64) {
   var chatID int64
-  log.Println(msgID)
   query := `SELECT chat_id FROM takes WHERE msg_id = $1`
   err := db.QueryRow(query, msgID).Scan(&chatID)
   if err != nil {
-    log.Fatal("cannot get from table", err)
+    log.Println("[DB]: [ERROR]: cannot get chatID from table takes, chatID = ", chatID)
   }
-  return chatID, err
+
+  log.Println("[DB]: [INFO]: got chatID from table takes, chatID = ", chatID)
+  return chatID
 }
 
-func GetUsrIDByMsgID(msgID int64) (int64, error) {
+func GetUsrIDByMsgID(msgID int64) (int64) {
   var usrID int64
-  log.Println(msgID)
   query := `SELECT user_id FROM takes WHERE msg_id = $1`
   err := db.QueryRow(query, msgID).Scan(&usrID)
   if err != nil {
-    log.Println("cannot get from table", err)
+    log.Println("[DB]: [ERROR]: cannot get usrID from table users, usrID = ", usrID)
   }
-  return usrID, err
+
+  log.Println("[DB]: [INFO]: got usrID from table users, usrID = ", usrID)
+  return usrID
 }
 
 func Ban(usrID int64) {
   query := `UPDATE users SET banned = true WHERE user_id = $1`
   _, err := db.Exec(query, usrID)
   if err != nil {
-    log.Fatal("cannot ban user", err)
+    log.Println("[DB]: [ERROR]: cannot find user in users for ban, banned user = ", usrID)
   }
 
-  log.Println("banned user", usrID)
+  log.Println("[DB]: [INFO]: banned user ", usrID)
 }
 
 func UnBan(usrID int64) {
   query := `UPDATE users SET banned = false WHERE user_id = $1`
   _, err := db.Exec(query, usrID)
   if err != nil {
-    log.Fatal("cannot unban user", err)
+    log.Println("[DB]: [ERROR]: find user in users for unban, unbanned user = ", usrID)
   }
 
-  log.Println("unbanned user", usrID)
+  log.Println("[DB]: [INFO]: unbanned user", usrID)
 }
 
 func CheckBan(usrID int64) bool {
@@ -110,9 +121,10 @@ func CheckBan(usrID int64) bool {
   query := `SELECT banned FROM users WHERE user_id = $1`
   err := db.QueryRow(query, usrID).Scan(&banned)
   if err != nil {
-    log.Println("cannot get from table", err)
+    log.Println("[DB]: [ERROR]: cannot check user from table users, usrID = ", usrID)
   }
 
+  log.Println("[DB]: [INFO]: checked user from table users, usrID = ", usrID, ", banned = ", banned)
   return banned
 }
 
@@ -120,4 +132,6 @@ func Close() {
   if db != nil {
     db.Close()
   }
+
+  log.Println("[DB]: [INFO]: closed database")
 }

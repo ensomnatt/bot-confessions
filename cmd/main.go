@@ -1,9 +1,9 @@
 package main
 
 import (
-	db "bot-cf-simple/internal/db"
+	"bot-cf-simple/internal/db"
 	"bot-cf-simple/internal/handlers"
-	initbot "bot-cf-simple/internal/initBot"
+	"bot-cf-simple/internal/initBot"
 	"bot-cf-simple/internal/texts"
 	"log"
 	"os"
@@ -19,13 +19,16 @@ func main() {
     log.Fatal(err)
   }
 
+  log.Println("[INFO]: load .env")
+
   connStr := os.Getenv("DB_CONN_STR")
   token := os.Getenv("TOKEN")
   adminsChatIDstr := os.Getenv("ADM_CHAT")
 
   //init bot and db
-  adminsChatID, updates, bot := initbot.New(token, adminsChatIDstr)
+  adminsChatID, updates, bot := initbot.New(token, adminsChatIDstr) 
   db.Init(connStr)
+  log.Println("[INFO]: init bot and db")
   defer db.Close()
 
   //start take updates
@@ -42,19 +45,16 @@ func main() {
 
     //photos and videos
     if len(msgPhoto) > 0 || msgVideo != nil {
-      logFiles(usrName)
       handlers.Files(chatID, adminsChatID, msgID, usrID, bot, usrName)
     }
 
     //voices
     if msgVoice != nil {
-      logVoice(usrName)
       handlers.Voices(chatID, adminsChatID, usrID, bot, usrName, *msgVoice)
     }
 
     //video notes
     if msgVideoNote != nil {
-      logVideoNote(usrName)
       handlers.VideoNotes(chatID, adminsChatID, usrID, bot, usrName, *msgVideoNote)
     }
 
@@ -66,45 +66,28 @@ func main() {
         if strings.Contains(msgText, "/ban") {
           command = "/ban"
         }
+        //unban 
+        if strings.Contains(msgText, "/unban") {
+          command = "/unban"
+        }
         switch command {
         case "/ban":
           handlers.Ban(replyMsgId)
+        case "/unban":
+          handlers.UnBan(replyMsgId)
         case "/reply":
-          logReply(usrName, replyMsgId)
-          handlers.Reply(bot, msgText, replyMsgId, adminsChatID)
+          handlers.Reply(bot, msgText, usrName, replyMsgId, adminsChatID)
         }
       } else {
         switch msgText {
         case "/start":
-          logTxt(msgText, usrName)
           handlers.Start(chatID, bot)
         default:
           if chatID != adminsChatID {
-            logTxt(msgText, usrName)
             handlers.TakeTxt(chatID, adminsChatID, usrID, msgText, usrName, bot)
           }
         }
       } 
     }
   }
-}
-
-func logTxt(text string, usrName string) {
-  log.Printf("пользователь @%s написал: %s", usrName, text)
-}
-
-func logFiles(usrName string) {
-  log.Printf("пользователь @%s отправил файлы", usrName)
-}
-
-func logVoice(usrName string) {
-  log.Printf("пользователь @%s отправил голосовое", usrName)
-}
-
-func logVideoNote(usrName string) {
-  log.Printf("пользователь @%s отправил кружок", usrName)
-}
-
-func logReply(usrName string, msgID int64) {
-  log.Printf("админ @%s ответил на сообщение %v", usrName, msgID)
 }
