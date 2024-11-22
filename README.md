@@ -19,5 +19,8 @@ guide the user and help him with the problems.
 ему с проблемами
 
 # TODO
-- add informative logs
+- add informative logs //done
 - fix send photos and videos
+- add docker container which contains bot and database or make two separate containers with docker compose
+- add bot to my channel
+- add bot to other telegram confessions
