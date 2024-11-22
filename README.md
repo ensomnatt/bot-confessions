@@ -17,3 +17,7 @@ guide the user and help him with the problems.
 
 он добавляет #тейк к тейкам, направляет юзера и помогает
 ему с проблемами
+
+#TODO
+- add informative logs
+- fix send photos and videos
