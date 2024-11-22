@@ -77,7 +77,7 @@ func GetChatIDByMsgID(msgID int64) (int64, error) {
 func GetUsrIDByMsgID(msgID int64) (int64, error) {
   var usrID int64
   log.Println(msgID)
-  query := `SELECT usr_id FROM takes WHERE msg_id = $1`
+  query := `SELECT user_id FROM takes WHERE msg_id = $1`
   err := db.QueryRow(query, msgID).Scan(&usrID)
   if err != nil {
     log.Println("cannot get from table", err)
