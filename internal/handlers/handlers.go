@@ -131,7 +131,7 @@ func VideoNotes(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName strin
 
 func Reply(bot *tg.BotAPI, msgText string, msgID, adminsChatID int64) {
   //get chat id from db
-  chatID, err := db.GetByMsgID(msgID)
+  chatID, err := db.GetChatIDByMsgID(msgID)
   if err != nil {
     log.Fatal("cannot get from table", err)
   }
@@ -144,4 +144,14 @@ func Reply(bot *tg.BotAPI, msgText string, msgID, adminsChatID int64) {
   bot.Send(msg)
   bot.Send(msg2)
   log.Println("ответ успешно отправлен")
+}
+
+func Ban(msgID int64) {
+  //get chat id from db
+  usrID, err := db.GetUsrIDByMsgID(msgID)
+  if err != nil {
+    log.Fatal("cannot get from table", err)
+  }
+
+  db.Ban(usrID)
 }

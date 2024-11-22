@@ -4,12 +4,13 @@ import (
 	db "bot-cf-simple/internal/db"
 	"bot-cf-simple/internal/handlers"
 	initbot "bot-cf-simple/internal/initBot"
-  "bot-cf-simple/internal/texts"
+	"bot-cf-simple/internal/texts"
 	"log"
 	"os"
+	"strings"
 
+	tg "github.com/OvyFlash/telegram-bot-api"
 	"github.com/joho/godotenv"
-  tg "github.com/OvyFlash/telegram-bot-api"
 )
 
 func main() {
@@ -59,8 +60,18 @@ func main() {
     //only text
     if msgText != "" {
       if chatID == adminsChatID && u.Message.ReplyToMessage != nil && u.Message.ReplyToMessage.From.ID == bot.Self.ID {
-        logReply(usrName, replyMsgId)
-        handlers.Reply(bot, msgText, replyMsgId, adminsChatID)
+        var command string = "/reply"
+        //ban  
+        if strings.Contains(msgText, "/ban") {
+          command = "/ban"
+        }
+        switch command {
+        case "/ban":
+          handlers.Ban(replyMsgId)
+        case "/reply":
+          logReply(usrName, replyMsgId)
+          handlers.Reply(bot, msgText, replyMsgId, adminsChatID)
+        }
       } else {
         switch msgText {
         case "/start":

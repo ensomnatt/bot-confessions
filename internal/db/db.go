@@ -19,7 +19,8 @@ func Init(connStr string) {
   query := `CREATE TABLE IF NOT EXISTS takes (
     id SERIAL PRIMARY KEY,
     msg_id BIGINT NOT NULL,
-    chat_id BIGINT NOT NULL
+    chat_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL
   )`
   _, err = db.Exec(query)
   if err != nil {
@@ -46,8 +47,8 @@ func Init(connStr string) {
 
 func Add(msgID, chatID, usrID int64, usrName string) {
   //add to takes
-  query := `INSERT INTO takes (msg_id, chat_id) VALUES ($1, $2)`
-  _, err := db.Exec(query, msgID, chatID)
+  query := `INSERT INTO takes (msg_id, chat_id, user_id) VALUES ($1, $2, $3)`
+  _, err := db.Exec(query, msgID, chatID, usrID)
   if err != nil {
     log.Fatal("cannot add to table", err)
   }
@@ -62,7 +63,7 @@ func Add(msgID, chatID, usrID int64, usrName string) {
   log.Println("added to table ", msgID, chatID)
 }
 
-func GetByMsgID(msgID int64) (int64, error) {
+func GetChatIDByMsgID(msgID int64) (int64, error) {
   var chatID int64
   log.Println(msgID)
   query := `SELECT chat_id FROM takes WHERE msg_id = $1`
@@ -71,6 +72,17 @@ func GetByMsgID(msgID int64) (int64, error) {
     log.Fatal("cannot get from table", err)
   }
   return chatID, err
+}
+
+func GetUsrIDByMsgID(msgID int64) (int64, error) {
+  var usrID int64
+  log.Println(msgID)
+  query := `SELECT usr_id FROM takes WHERE msg_id = $1`
+  err := db.QueryRow(query, msgID).Scan(&usrID)
+  if err != nil {
+    log.Println("cannot get from table", err)
+  }
+  return usrID, err
 }
 
 func Ban(usrID int64) {
@@ -98,7 +110,7 @@ func CheckBan(usrID int64) bool {
   query := `SELECT banned FROM users WHERE user_id = $1`
   err := db.QueryRow(query, usrID).Scan(&banned)
   if err != nil {
-    log.Fatal("cannot get from table", err)
+    log.Println("cannot get from table", err)
   }
 
   return banned
