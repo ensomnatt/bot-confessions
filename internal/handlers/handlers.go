@@ -129,7 +129,7 @@ func VideoNotes(chatID, adminsChatID int64, bot *tg.BotAPI, usrName string, msgV
   bot.Send(msg2)
 }
 
-func Reply(bot *tg.BotAPI, msgText string, msgID int64) {
+func Reply(bot *tg.BotAPI, msgText string, msgID, adminsChatID int64) {
   //get chat id from db
   chatID, err := db.GetByMsgID(msgID)
   if err != nil {
@@ -139,7 +139,7 @@ func Reply(bot *tg.BotAPI, msgText string, msgID int64) {
   //send reply 
   msg := tg.NewMessage(chatID, "ответ от админа:\n\n" + msgText)
   //send what all successful
-  msg2 := tg.NewMessage(chatID, "ответ успешно отправлен")
+  msg2 := tg.NewMessage(adminsChatID, "ответ успешно отправлен")
 
   bot.Send(msg)
   bot.Send(msg2)

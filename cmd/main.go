@@ -57,7 +57,7 @@ func main() {
     if msgText != "" {
       if chatID == adminsChatID && u.Message.ReplyToMessage != nil && u.Message.ReplyToMessage.From.ID == bot.Self.ID {
         logReply(usrName, replyMsgId)
-        handlers.Reply(bot, msgText, replyMsgId)
+        handlers.Reply(bot, msgText, replyMsgId, adminsChatID)
       } else {
         switch msgText {
         case "/start":
@@ -66,7 +66,7 @@ func main() {
         default:
           if chatID != adminsChatID {
             logTxt(msgText, usrName)
-            handlers.TakeTxt(chatID, adminsChatID,msgText, usrName, bot)
+            handlers.TakeTxt(chatID, adminsChatID, msgText, usrName, bot)
           }
         }
       } 
