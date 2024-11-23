@@ -3,6 +3,7 @@ package handlers
 import (
 	"bot-cf-simple/internal/db"
 	"bot-cf-simple/internal/texts"
+	"go/format"
 	"log"
 	"strings"
 
@@ -50,17 +51,24 @@ func Start(chatID int64, bot *tg.BotAPI) {
   bot.Send(msg)
 }
 
+func formatTake(msgText string) []string {
+  x := strings.ReplaceAll(msgText, "\n", " ")
+  take := strings.TrimSpace(x)
+
+  return strings.Split(take, " ")
+}
+
 func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg.BotAPI) {
-  take := strings.Split(msgText, " ")
+  take := formatTake(msgText)
 
   anon := false
   neanon := false
   //find anon or not anon
   for _, w := range take {
-    if w == "анон" {
+    if w == "анон" || w == "Анон" {
       anon = true
       break
-    } else if w == "неанон" {
+    } else if w == "неанон" || w == "Неанон" {
       neanon = true
       break
     }
