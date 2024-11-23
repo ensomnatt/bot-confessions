@@ -87,8 +87,6 @@ func checkIfUserExists(usrID int64) bool {
     return false
   } else if err != nil {
     return true
-  } else {
-    log.Println("[DB]: [ERROR]: cannot make query when checking if user exists")
   }
 
   return false

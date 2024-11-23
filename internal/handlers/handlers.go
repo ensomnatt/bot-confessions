@@ -89,6 +89,7 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
     msg := tg.NewMessage(adminsChatID, msgText + "\n\n#тейк")
     //message to user which mean that all successful
     msg2 := tg.NewMessage(chatID, "тейк был успешно отправлен")
+    msg3 := tg.NewMessage(adminsChatID, "тейк от @" + usrName)
 
     //send messages
     msgID, err :=bot.Send(msg)
@@ -100,6 +101,7 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
     db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
 
     bot.Send(msg2)
+    bot.Send(msg3)
     logUnAnon(msgText, usrName)
     return
   } else {
