@@ -31,7 +31,7 @@ func main() {
   log.Println("[INFO]: init bot and db")
   defer db.Close()
 
-  //start take updates
+  //start taking updates
   for u := range updates {
     if u.Message == nil {
       continue
@@ -41,11 +41,11 @@ func main() {
       continue
     }
 
-    chatID, msgID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote, replyMsgId, usrID := initbot.CreateVars(u)
+    chatID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote, replyMsgId, usrID := initbot.CreateVars(u)
 
     //photos and videos
     if len(msgPhoto) > 0 || msgVideo != nil {
-      handlers.Files(chatID, adminsChatID, msgID, usrID, bot, usrName)
+      handlers.Photos(chatID, adminsChatID, usrID, bot, usrName, msgPhoto)
     }
 
     //voices

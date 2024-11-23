@@ -1,7 +1,7 @@
 # EN
 # bot for confessions written in go
 this bot is using for telegram confessions.
-## why it better than bots constructors?
+## why is this bot better than bots constructors?
 my bot is better than livegram or other bots constructors
 because my bot is using for CONFESSIONS. 
 
