@@ -128,23 +128,24 @@ func Files(chatID, adminsChatID, msgID, usrID int64, bot *tg.BotAPI, usrName str
 }
 
 func Photos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgPhoto[] tg.PhotoSize) {
-  for _, v := range msgPhoto {
-    fileID := v.FileID
-    //photos
-    msg := tg.NewPhoto(adminsChatID, tg.FileID(fileID))
-    //user message
-    msg2 := tg.NewMessage(chatID, "фото отправлено успешно")
-    //send messages 
-    msgID, err := bot.Send(msg)
-    if err != nil {
-      log.Println("[ERROR]: cannot send message")
-    }
- 
-    //add to db
-    db.Add(int64(msgID.MessageID), chatID, usrID, usrName) 
+  largest := msgPhoto[len(msgPhoto)-1]
+  fileID := largest.FileID
 
-    bot.Send(msg2)
+  //photos
+  msg := tg.NewPhoto(adminsChatID, tg.FileID(fileID))
+  //user message
+  msg2 := tg.NewMessage(chatID, "фото отправлено успешно")
+  //send messages 
+
+  msgID, err := bot.Send(msg)
+  if err != nil {
+    log.Println("[ERROR]: cannot send message")
   }
+
+  //add to db
+  db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
+
+  bot.Send(msg2)
 
   logFiles(usrName)
 }
