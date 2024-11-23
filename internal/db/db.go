@@ -79,8 +79,9 @@ func Add(msgID, chatID, usrID int64, usrName string) {
 }
 
 func checkIfUserExists(usrID int64) bool {
+  var dbUserID int64
   query := `SELECT user_id FROM users WHERE user_id = $1`
-  err := db.QueryRow(query, usrID).Scan(&usrID)
+  err := db.QueryRow(query, usrID).Scan(&dbUserID)
 
   if err == sql.ErrNoRows {
     return false
