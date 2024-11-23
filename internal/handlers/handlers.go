@@ -3,7 +3,6 @@ package handlers
 import (
 	"bot-cf-simple/internal/db"
 	"bot-cf-simple/internal/texts"
-	"go/format"
 	"log"
 	"strings"
 
