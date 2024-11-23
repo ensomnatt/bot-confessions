@@ -44,8 +44,12 @@ func main() {
     chatID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote, replyMsgId, usrID := initbot.CreateVars(u)
 
     //photos and videos
-    if len(msgPhoto) > 0 || msgVideo != nil {
+    if len(msgPhoto) > 0 {
       handlers.Photos(chatID, adminsChatID, usrID, bot, usrName, msgPhoto)
+    }
+
+    if msgVideo != nil {
+      handlers.Videos(chatID, adminsChatID, usrID, bot, usrName, *msgVideo)
     }
 
     //voices

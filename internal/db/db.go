@@ -62,7 +62,13 @@ func Add(msgID, chatID, usrID int64, usrName string) {
 
   log.Println("[DB]: [INFO]: added to table takes ", msgID, chatID, usrID)
 
-  //add to users 
+  //add to users
+
+  //check if user exists
+  if checkIfUserExists(usrID) {
+    return
+  }
+
   query = `INSERT INTO users (user_id, user_name) VALUES ($1, $2)`
   _, err = db.Exec(query, usrID, usrName)
   if err != nil {
@@ -70,6 +76,21 @@ func Add(msgID, chatID, usrID int64, usrName string) {
   }
 
   log.Println("[DB]: [INFO]: added to table users ", usrID, usrName)
+}
+
+func checkIfUserExists(usrID int64) bool {
+  query := `SELECT user_id FROM users WHERE user_id = $1`
+  err := db.QueryRow(query, usrID).Scan(&usrID)
+
+  if err == sql.ErrNoRows {
+    return false
+  } else if err != nil {
+    return true
+  } else {
+    log.Println("[DB]: [ERROR]: cannot make query when checking if user exists")
+  }
+
+  return false
 }
 
 func GetChatIDByMsgID(msgID int64) (int64) {

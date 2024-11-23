@@ -108,25 +108,6 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
   }
 }
 
-func Files(chatID, adminsChatID, msgID, usrID int64, bot *tg.BotAPI, usrName string) {
-  //files
-  msg := tg.NewForward(adminsChatID, chatID, int(msgID))
-  //user must send a text
-  msg2 := tg.NewMessage(chatID, "файлы отправлены, теперь напишите свой текст, как обычный тейк")
-
-  //send messages
-  msgIDbot, err := bot.Send(msg)
-  if err != nil {
-    log.Println("[ERROR]: cannot send message")
-  }
-
-  //add to db
-  db.Add(int64(msgIDbot.MessageID), chatID, usrID, usrName)
-
-  bot.Send(msg2)
-  logFiles(usrName)
-}
-
 func Photos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgPhoto[] tg.PhotoSize) {
   largest := msgPhoto[len(msgPhoto)-1]
   fileID := largest.FileID
@@ -134,7 +115,31 @@ func Photos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, m
   //photos
   msg := tg.NewPhoto(adminsChatID, tg.FileID(fileID))
   //user message
-  msg2 := tg.NewMessage(chatID, "фото отправлено успешно")
+  msg2 := tg.NewMessage(chatID, "фото успешно отправлены, теперь напишите свой текст, как обычный тейк")
+
+  //send messages 
+
+  msgID, err := bot.Send(msg)
+  if err != nil {
+    log.Println("[ERROR]: cannot send message")
+  }
+
+  //add to db
+  db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
+
+  bot.Send(msg2)
+
+  logFiles(usrName)
+}
+
+func Videos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgVideo tg.Video) { 
+  fileID := msgVideo.FileID
+
+  //photos
+  msg := tg.NewVideo(adminsChatID, tg.FileID(fileID))
+  //user message
+  msg2 := tg.NewMessage(chatID, "видео успешно отправлены, теперь напишите свой текст, как обычный тейк")
+
   //send messages 
 
   msgID, err := bot.Send(msg)
