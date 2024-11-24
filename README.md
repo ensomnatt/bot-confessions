@@ -19,9 +19,8 @@ guide the user and help him with the problems.
 ему с проблемами
 
 # TODO
-- add docker container which contains bot and database or make two separate containers with docker compose //in progress
 - add bot to other telegram confessions
-- relocate logs to another package 
-- add commands for admins
+- relocate logs to another package //in progress 
+- add commands for admins //in progress
 - make bash script for deployment
 - add another logs system
