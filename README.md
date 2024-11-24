@@ -20,7 +20,7 @@ guide the user and help him with the problems.
 
 # TODO
 - add informative logs //done
-- fix send photos and videos
-- add docker container which contains bot and database or make two separate containers with docker compose
-- add bot to my channel
+- fix send photos and videos //done
+- add docker container which contains bot and database or make two separate containers with docker compose //in progress
+- add bot to my channel //done
 - add bot to other telegram confessions
