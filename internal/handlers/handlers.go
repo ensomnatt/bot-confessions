@@ -2,58 +2,25 @@ package handlers
 
 import (
 	"bot-cf-simple/internal/db"
+	"bot-cf-simple/internal/logger"
 	"bot-cf-simple/internal/texts"
-	"log"
 	"strings"
 
 	tg "github.com/OvyFlash/telegram-bot-api"
 )
 
-func logAnon(msgText, usrName string) {
-  log.Println("[INFO]: user @", usrName, "send anon message: ", msgText)
-}
-
-func logUnAnon(msgText, usrName string) {
-  log.Println("[INFO]: user @", usrName, "send not anon message: ", msgText)
-}
-
-func logStart(usrName string) {
-  log.Println("[INFO]: user @", usrName, "press /start")
-}
-
-func logFiles(usrName string) {
-  log.Println("[INFO]: user @", usrName, "send files")
-}
-
-func logVoice(usrName string) {
-  log.Println("[INFO]: user @", usrName, "send voice")
-}
-
-func logVideoNote(usrName string) {
-  log.Println("[INFO]: user @", usrName, "send video note")
-}
-
-func logBan() {
-  log.Println("[INFO]: call db.Ban")
-}
-
-func logUnBan() {
-  log.Println("[INFO]: call db.UnBan")
-}
-
-func logReply(usrName string) {
-  log.Println("[INFO]: admin ", usrName, "send reply")
-}
-
-func Start(chatID int64, bot *tg.BotAPI) {
+func Start(chatID, usrID int64, bot *tg.BotAPI) {
   msg := tg.NewMessage(chatID, texts.Start)
   bot.Send(msg)
+
+  logger.Logger.Info("пользователь запустил бота", "chatID", chatID, "usrID", usrID, "username", db.GetUsrNameByUsrID(usrID))
 }
 
 func formatTake(msgText string) []string {
   x := strings.ReplaceAll(msgText, "\n", " ")
   take := strings.TrimSpace(x)
 
+  logger.Logger.Debug("форматирован текст тейка", "take", take)
   return strings.Split(take, " ")
 }
 
@@ -83,13 +50,14 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
     //send messages
     msgID, err := bot.Send(msg)
     if err != nil {
-      log.Println("[ERROR]: cannot send message")
+      logger.Logger.Warn("не удалось отправить сообщение", "error", err, "usrID", usrID, "usrName", usrName, "msgText", msgText)
     }
     //add to db
     db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
 
     bot.Send(msg2)
-    logAnon(msgText, usrName)
+    
+    logger.Logger.Info("тейк был отправлен", "usrID", usrID, "usrName", usrName)
     return
   } else if neanon == true {
     //message from user
@@ -101,7 +69,7 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
     //send messages
     msgID, err :=bot.Send(msg)
     if err != nil {
-      log.Println("[ERROR]: cannot send message")
+      logger.Logger.Warn("не удалось отправить сообщение", "error", err, "usrID", usrID, "usrName", usrName, "msgText", msgText)
     }
 
     //add to db
@@ -109,7 +77,8 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
 
     bot.Send(msg2)
     bot.Send(msg3)
-    logUnAnon(msgText, usrName)
+    
+    logger.Logger.Info("тейк был отправлен", "usrID", usrID, "usrName", usrName)
     return
   } else {
     msg := tg.NewMessage(chatID, texts.Error)
@@ -118,6 +87,7 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
 }
 
 func Photos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgPhoto[] tg.PhotoSize) {
+  logger.Logger.Debug("обработка фото", "usrID", usrID, "usrName", usrName, "msgPhoto", msgPhoto)
   largest := msgPhoto[len(msgPhoto)-1]
   fileID := largest.FileID
 
@@ -130,7 +100,7 @@ func Photos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, m
 
   msgID, err := bot.Send(msg)
   if err != nil {
-    log.Println("[ERROR]: cannot send message")
+    logger.Logger.Warn("не удалось отправить сообщение", "error", err, "usrID", usrID, "usrName", usrName)
   }
 
   //add to db
@@ -138,10 +108,11 @@ func Photos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, m
 
   bot.Send(msg2)
 
-  logFiles(usrName)
+  logger.Logger.Info("фото было отправлено", "usrID", usrID, "usrName", usrName)
 }
 
 func Videos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgVideo tg.Video) { 
+  logger.Logger.Debug("обработка видео", "usrID", usrID, "usrName", usrName, "msgVideo", msgVideo)
   fileID := msgVideo.FileID
 
   //photos
@@ -153,7 +124,7 @@ func Videos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, m
 
   msgID, err := bot.Send(msg)
   if err != nil {
-    log.Println("[ERROR]: cannot send message")
+    logger.Logger.Warn("не удалось отправить сообщение", "error", err, "usrID", usrID, "usrName", usrName)
   }
 
   //add to db
@@ -161,10 +132,11 @@ func Videos(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, m
 
   bot.Send(msg2)
 
-  logFiles(usrName)
+  logger.Logger.Info("видео было отправлено", "usrID", usrID, "usrName", usrName)
 }
 
 func Voices(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgVoice tg.Voice) { 
+  logger.Logger.Debug("обработка голосового", "usrID", usrID, "usrName", usrName, "msgVoice", msgVoice)
   fileID := msgVoice.FileID
 
   //voices 
@@ -175,17 +147,18 @@ func Voices(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, m
 
   msgID, err := bot.Send(msg)
   if err != nil {
-    log.Println("[ERROR]: cannot send message")
+    logger.Logger.Warn("не удалось отправить сообщение", "error", err, "usrID", usrID, "usrName", usrName)
   }
 
   //add to db
   db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
 
   bot.Send(msg2)
-  logVoice(usrName)
+  logger.Logger.Info("голосовое было отправлено", "usrID", usrID, "usrName", usrName)
 }
 
 func VideoNotes(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName string, msgVideoNote tg.VideoNote) { 
+  logger.Logger.Debug("обработка видеосообщения", "usrID", usrID, "usrName", usrName, "msgVideoNote", msgVideoNote)
   fileID := msgVideoNote.FileID
   duration := msgVideoNote.Duration
 
@@ -197,14 +170,14 @@ func VideoNotes(chatID, adminsChatID, usrID int64, bot *tg.BotAPI, usrName strin
   //send messages 
   msgID, err := bot.Send(msg)
   if err != nil {
-    log.Println("[ERROR]: cannot send message")
+    logger.Logger.Warn("не удалось отправить сообщение", "error", err, "usrID", usrID, "usrName", usrName)
   }
 
   //add to db
   db.Add(int64(msgID.MessageID), chatID, usrID, usrName)
 
   bot.Send(msg2)
-  logVideoNote(usrName)
+  logger.Logger.Info("кружок был отправлен", "usrID", usrID, "usrName", usrName)
 }
 
 func Reply(bot *tg.BotAPI, msgText, usrName string, msgID, adminsChatID int64) {
@@ -218,7 +191,7 @@ func Reply(bot *tg.BotAPI, msgText, usrName string, msgID, adminsChatID int64) {
 
   bot.Send(msg)
   bot.Send(msg2)
-  logReply(usrName)
+  logger.Logger.Info("ответ был отправлен", "chatID", chatID, "usrName", usrName)
 }
 
 func Ban(msgID int64) {
@@ -226,7 +199,6 @@ func Ban(msgID int64) {
   usrID := db.GetUsrIDByMsgID(msgID)
 
   db.Ban(usrID)
-  logBan()
 }
 
 func UnBan(msgID int64) {
@@ -234,5 +206,4 @@ func UnBan(msgID int64) {
   usrID := db.GetUsrIDByMsgID(msgID)
 
   db.UnBan(usrID)
-  logUnBan()
 }

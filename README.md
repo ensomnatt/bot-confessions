@@ -20,7 +20,5 @@ guide the user and help him with the problems.
 
 # TODO
 - add bot to other telegram confessions
-- relocate logs to another package //in progress 
 - add commands for admins //in progress
 - make bash script for deployment
-- add another logs system

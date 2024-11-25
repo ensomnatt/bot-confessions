@@ -1,22 +1,22 @@
 package initbot
 
 import (
-	tg "github.com/OvyFlash/telegram-bot-api"
+	"bot-cf-simple/internal/logger"
 
-	"log"
+	tg "github.com/OvyFlash/telegram-bot-api"
 	"strconv"
 )
 
 func New(token string, adminsChatIDstr string) (int64, tg.UpdatesChannel, *tg.BotAPI) {
   adminsChatIDi, err := strconv.Atoi(adminsChatIDstr)
   if err != nil {
-    log.Fatal("[FATAL]: cannot convert adminsChatIDstr to int")
+    logger.Logger.Error("не удалось преобразовать adminsChatID", "error", err, "adminsChatIDstr", adminsChatIDstr)  
   }
   adminsChatID := int64(adminsChatIDi)
 
   bot, err := tg.NewBotAPI(token)
   if err != nil {
-    log.Fatal("[FATAL]: cannot create bot")
+    logger.Logger.Error("не удалось создать бота", "error", err, "token", token)
   }
 
   updateConfig := tg.NewUpdate(0)

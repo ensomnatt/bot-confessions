@@ -1,9 +1,10 @@
 package db
 
 import (
-  "database/sql"
-  _ "github.com/lib/pq"
-  "log"
+	"bot-cf-simple/internal/logger"
+	"database/sql"
+
+	_ "github.com/lib/pq"
 )
 
 var db *sql.DB
@@ -13,7 +14,7 @@ func Init(connStr string) {
   var err error
   db, err = sql.Open("postgres", connStr)
   if err != nil {
-    log.Fatal("[DB]: [FATAL]: cannot open database")
+    logger.Logger.Error("не удалось подключиться к базе данных", "error", err, "connStr", connStr)
   }
   
   //create takes table
@@ -25,10 +26,10 @@ func Init(connStr string) {
   )`
   _, err = db.Exec(query)
   if err != nil {
-    log.Fatal("[DB]: [FATAL]: cannot create takes table")
+    logger.Logger.Error("не удалось создать таблицу takes", "error", err)
   }
 
-  log.Println("[DB]: [INFO]: takes table created")
+  logger.Logger.Debug("таблица takes создана")
 
   //create users table 
   query = `CREATE TABLE IF NOT EXISTS users (
@@ -39,17 +40,17 @@ func Init(connStr string) {
   )`
   _, err = db.Exec(query)
   if err != nil {
-    log.Fatal("[DB]: [FATAL]: cannot create users table")
+    logger.Logger.Error("не удалось создать таблицу users", "error", err)
   }
 
-  log.Println("[DB]: [INFO]: users table created")
+  logger.Logger.Debug("таблица users создана")
 
   err = db.Ping()
   if err != nil {
-    log.Fatal("[DB]: [FATAL]: cannot ping database")
+    logger.Logger.Error("не удалось произвести связь к базе данных", "error", err)
   }
 
-  log.Println("[DB]: [INFO]: connected to database")
+  logger.Logger.Info("связь к базе данных установлена")
 }
 
 func Add(msgID, chatID, usrID int64, usrName string) {
@@ -57,10 +58,10 @@ func Add(msgID, chatID, usrID int64, usrName string) {
   query := `INSERT INTO takes (msg_id, chat_id, user_id) VALUES ($1, $2, $3)`
   _, err := db.Exec(query, msgID, chatID, usrID)
   if err != nil {
-    log.Println("[DB]: [ERROR]: cannot add to table")
+    logger.Logger.Warn("не удалось добавить в таблицу takes", "error", err, "msgID", msgID, "chatID", chatID, "usrID", usrID)
   }
 
-  log.Println("[DB]: [INFO]: added to table takes ", msgID, chatID, usrID)
+  logger.Logger.Debug("добавлено в таблицу takes", "msgID", msgID, "chatID", chatID, "usrID", usrID)
 
   //add to users
 
@@ -72,10 +73,10 @@ func Add(msgID, chatID, usrID int64, usrName string) {
   query = `INSERT INTO users (user_id, user_name) VALUES ($1, $2)`
   _, err = db.Exec(query, usrID, usrName)
   if err != nil {
-    log.Println("[DB]: [ERROR]: cannot add to table")
+    logger.Logger.Warn("не удалось добавить в таблицу users", "error", err, "usrID", usrID, "usrName", usrName)
   }
 
-  log.Println("[DB]: [INFO]: added to table users ", usrID, usrName)
+  logger.Logger.Debug("добавлено в таблицу users", "usrID", usrID, "usrName", usrName)
 }
 
 func checkIfUserExists(usrID int64) bool {
@@ -88,8 +89,6 @@ func checkIfUserExists(usrID int64) bool {
   } else {
     return true
   }
-
-  return false
 }
 
 func GetChatIDByMsgID(msgID int64) (int64) {
@@ -97,10 +96,10 @@ func GetChatIDByMsgID(msgID int64) (int64) {
   query := `SELECT chat_id FROM takes WHERE msg_id = $1`
   err := db.QueryRow(query, msgID).Scan(&chatID)
   if err != nil {
-    log.Println("[DB]: [ERROR]: cannot get chatID from table takes, chatID = ", chatID)
+    logger.Logger.Warn("не удалось получить chatID из таблицы takes", "error", err, "msgID", msgID, "chatID", chatID) 
   }
 
-  log.Println("[DB]: [INFO]: got chatID from table takes, chatID = ", chatID)
+  logger.Logger.Debug("получен chatID из таблицы takes", "msgID", msgID, "chatID", chatID)
   return chatID
 }
 
@@ -109,31 +108,43 @@ func GetUsrIDByMsgID(msgID int64) (int64) {
   query := `SELECT user_id FROM takes WHERE msg_id = $1`
   err := db.QueryRow(query, msgID).Scan(&usrID)
   if err != nil {
-    log.Println("[DB]: [ERROR]: cannot get usrID from table users, usrID = ", usrID)
+    logger.Logger.Warn("не удалось получить usrID из таблицы takes", "error", err, "msgID", msgID, "usrID", usrID)
   }
 
-  log.Println("[DB]: [INFO]: got usrID from table users, usrID = ", usrID)
+  logger.Logger.Debug("получен usrID из таблицы takes", "msgID", msgID, "usrID", usrID)
   return usrID
 }
+
+func GetUsrNameByUsrID(usrID int64) (string) {
+  var usrName string
+  query := `SELECT user_name FROM users WHERE user_id = $1`
+  err := db.QueryRow(query, usrID).Scan(&usrName)
+  if err != nil {
+    logger.Logger.Warn("не удалось получить usrName из таблицы users", "error", err, "usrID", usrID)   
+  } 
+
+  logger.Logger.Debug("получен usrName из таблицы users", "usrID", usrID, "usrName", usrName)
+  return usrName
+} 
 
 func Ban(usrID int64) {
   query := `UPDATE users SET banned = true WHERE user_id = $1`
   _, err := db.Exec(query, usrID)
   if err != nil {
-    log.Println("[DB]: [ERROR]: cannot find user in users for ban, banned user = ", usrID)
+    logger.Logger.Warn("не удалось забанить пользователя", "error", err, "usrID", usrID)  
   }
 
-  log.Println("[DB]: [INFO]: banned user ", usrID)
+  logger.Logger.Info("забанен пользователь", "usrID", usrID, "usrName", GetUsrNameByUsrID(usrID))
 }
 
 func UnBan(usrID int64) {
   query := `UPDATE users SET banned = false WHERE user_id = $1`
   _, err := db.Exec(query, usrID)
   if err != nil {
-    log.Println("[DB]: [ERROR]: find user in users for unban, unbanned user = ", usrID)
+    logger.Logger.Warn("не удалось разбанить пользователя", "error", err, "usrID", usrID, "usrName", GetUsrNameByUsrID(usrID)) 
   }
 
-  log.Println("[DB]: [INFO]: unbanned user", usrID)
+  logger.Logger.Info("разбанен пользователь", "usrID", usrID, "usrName", GetUsrNameByUsrID(usrID))
 }
 
 func CheckBan(usrID int64) bool {
@@ -141,7 +152,7 @@ func CheckBan(usrID int64) bool {
   query := `SELECT banned FROM users WHERE user_id = $1`
   _ = db.QueryRow(query, usrID).Scan(&banned)
 
-  log.Println("[DB]: [INFO]: checked user from table users, usrID = ", usrID, ", banned = ", banned)
+  logger.Logger.Debug("получен banned из таблицы users", "usrID", usrID, "banned", banned, "usrName", GetUsrNameByUsrID(usrID))
   return banned
 }
 
@@ -150,5 +161,5 @@ func Close() {
     db.Close()
   }
 
-  log.Println("[DB]: [INFO]: closed database")
+  logger.Logger.Debug("база данных закрыта")
 }

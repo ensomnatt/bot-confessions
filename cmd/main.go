@@ -5,21 +5,25 @@ import (
 	"bot-cf-simple/internal/handlers"
 	"bot-cf-simple/internal/initBot"
 	"bot-cf-simple/internal/texts"
-	"log"
 	"os"
 	"strings"
+  "bot-cf-simple/internal/logger"
 
 	tg "github.com/OvyFlash/telegram-bot-api"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+  //init logger
+  logger.Init()
+  
+  //load envs
   err := godotenv.Load(".env")
   if err != nil {
-    log.Fatal(err)
+    logger.Logger.Error("не удалось загрузить .env файл", "error", err)
   }
 
-  log.Println("[INFO]: load .env")
+  logger.Logger.Debug("загрузка .env файла завершена", "file", ".env")
 
   connStr := os.Getenv("DB_CONN_STR")
   token := os.Getenv("TOKEN")
@@ -28,7 +32,7 @@ func main() {
   //init bot and db
   adminsChatID, updates, bot := initbot.New(token, adminsChatIDstr) 
   db.Init(connStr)
-  log.Println("[INFO]: init bot and db")
+  logger.Logger.Info("бот запущен", "token", token, "adminsChatID", adminsChatIDstr)
   defer db.Close()
 
   //start taking updates
