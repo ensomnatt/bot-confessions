@@ -48,9 +48,9 @@ func Init(connStr string) {
   err = db.Ping()
   if err != nil {
     logger.Logger.Error("не удалось произвести связь к базе данных", "error", err)
-  }
-
-  logger.Logger.Info("связь к базе данных установлена")
+  } else {
+    logger.Logger.Info("связь к базе данных установлена")
+  } 
 }
 
 func Add(msgID, chatID, usrID int64, usrName string) {

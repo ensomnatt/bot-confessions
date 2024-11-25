@@ -13,7 +13,7 @@ func Start(chatID, usrID int64, bot *tg.BotAPI) {
   msg := tg.NewMessage(chatID, texts.Start)
   bot.Send(msg)
 
-  logger.Logger.Info("пользователь запустил бота", "chatID", chatID, "usrID", usrID, "username", db.GetUsrNameByUsrID(usrID))
+  logger.Logger.Info("пользователь запустил бота", "chatID", chatID, "usrID", usrID)
 }
 
 func formatTake(msgText string) []string {
