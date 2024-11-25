@@ -127,32 +127,32 @@ func GetUsrNameByUsrID(usrID int64) (string) {
   return usrName
 } 
 
-func Ban(usrID int64) {
+func Ban(usrID int64, userName string) {
   query := `UPDATE users SET banned = true WHERE user_id = $1`
   _, err := db.Exec(query, usrID)
   if err != nil {
     logger.Logger.Warn("не удалось забанить пользователя", "error", err, "usrID", usrID)  
   }
 
-  logger.Logger.Info("забанен пользователь", "usrID", usrID, "usrName", GetUsrNameByUsrID(usrID))
+  logger.Logger.Info("забанен пользователь", "usrID", usrID, "usrName", userName)
 }
 
-func UnBan(usrID int64) {
+func UnBan(usrID int64, userName string) {
   query := `UPDATE users SET banned = false WHERE user_id = $1`
   _, err := db.Exec(query, usrID)
   if err != nil {
-    logger.Logger.Warn("не удалось разбанить пользователя", "error", err, "usrID", usrID, "usrName", GetUsrNameByUsrID(usrID)) 
+    logger.Logger.Warn("не удалось разбанить пользователя", "error", err, "usrID", usrID, "usrName", userName)
   }
 
-  logger.Logger.Info("разбанен пользователь", "usrID", usrID, "usrName", GetUsrNameByUsrID(usrID))
+  logger.Logger.Info("разбанен пользователь", "usrID", usrID, "usrName", userName)
 }
 
-func CheckBan(usrID int64) bool {
+func CheckBan(usrID int64, userName string) bool {
   var banned bool
   query := `SELECT banned FROM users WHERE user_id = $1`
   _ = db.QueryRow(query, usrID).Scan(&banned)
 
-  logger.Logger.Debug("получен banned из таблицы users", "usrID", usrID, "banned", banned, "usrName", GetUsrNameByUsrID(usrID))
+  logger.Logger.Debug("получен banned из таблицы users", "usrID", usrID, "banned", banned, "usrName", userName)
   return banned
 }
 

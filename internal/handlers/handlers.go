@@ -9,11 +9,11 @@ import (
 	tg "github.com/OvyFlash/telegram-bot-api"
 )
 
-func Start(chatID, usrID int64, bot *tg.BotAPI) {
+func Start(chatID, usrID int64, bot *tg.BotAPI, userName string) {
   msg := tg.NewMessage(chatID, texts.Start)
   bot.Send(msg)
 
-  logger.Logger.Info("пользователь запустил бота", "chatID", chatID, "usrID", usrID)
+  logger.Logger.Info("пользователь запустил бота", "chatID", chatID, "usrID", usrID, "userName", userName)
 }
 
 func formatTake(msgText string) []string {
@@ -194,16 +194,16 @@ func Reply(bot *tg.BotAPI, msgText, usrName string, msgID, adminsChatID int64) {
   logger.Logger.Info("ответ был отправлен", "chatID", chatID, "usrName", usrName)
 }
 
-func Ban(msgID int64) {
+func Ban(msgID int64, userName string) {
   //get chat id from db
   usrID := db.GetUsrIDByMsgID(msgID)
 
-  db.Ban(usrID)
+  db.Ban(usrID, userName)
 }
 
-func UnBan(msgID int64) {
+func UnBan(msgID int64, userName string) {
   //get chat id from db
   usrID := db.GetUsrIDByMsgID(msgID)
 
-  db.UnBan(usrID)
+  db.UnBan(usrID, userName)
 }

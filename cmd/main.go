@@ -39,7 +39,7 @@ func main() {
   for u := range updates {
     if u.Message == nil {
       continue
-    } else if db.CheckBan(u.Message.From.ID) {
+    } else if db.CheckBan(u.Message.From.ID, u.Message.From.UserName) {
       msg := tg.NewMessage(u.Message.Chat.ID, texts.Banned)
       bot.Send(msg)
       continue
@@ -80,16 +80,16 @@ func main() {
         }
         switch command {
         case "/ban":
-          handlers.Ban(replyMsgId)
+          handlers.Ban(replyMsgId, usrName)
         case "/unban":
-          handlers.UnBan(replyMsgId)
+          handlers.UnBan(replyMsgId, usrName)
         case "/reply":
           handlers.Reply(bot, msgText, usrName, replyMsgId, adminsChatID)
         }
       } else {
         switch msgText {
         case "/start":
-          handlers.Start(chatID, usrID, bot)
+          handlers.Start(chatID, usrID, bot, usrName)
         default:
           if chatID != adminsChatID {
             handlers.TakeTxt(chatID, adminsChatID, usrID, msgText, usrName, bot)
