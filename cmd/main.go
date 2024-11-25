@@ -89,7 +89,7 @@ func main() {
       } else {
         switch msgText {
         case "/start":
-          handlers.Start(chatID, bot)
+          handlers.Start(chatID, usrID, bot)
         default:
           if chatID != adminsChatID {
             handlers.TakeTxt(chatID, adminsChatID, usrID, msgText, usrName, bot)
