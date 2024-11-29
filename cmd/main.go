@@ -81,37 +81,40 @@ func main() {
           } else if strings.Contains(msgText, "/unban") {
             command = "/unban"
           }
-        }
-
-        //if not reply to bot 
-        if strings.Contains(msgText, "/getusers") {
-          command = "/getusers"
-        } else if strings.Contains(msgText, "/getbans") {
-          command = "/getbans"
-        }
-
-        //handle commands 
-        switch command {
-        case "/ban":
-          handlers.Ban(replyMsgId)
-        case "/unban":
-          handlers.UnBan(replyMsgId)
-        case "/reply":
-          handlers.Reply(bot, msgText, usrName, replyMsgId, adminsChatID)
-        case "/getusers":
-          handlers.GetUsers(bot, adminsChatID)
-        case "/getbans":
-          handlers.GetBans(bot, adminsChatID)
-        }
-      } else {
-        switch msgText {
-        case "/start":
-          handlers.Start(chatID, bot)
-        default:
-          if chatID != adminsChatID {
-            handlers.TakeTxt(chatID, adminsChatID, usrID, msgText, usrName, bot)
+        } else if u.Message.ReplyToMessage == nil && u.Message.ReplyToMessage.From.ID != bot.Self.ID {
+          //if not reply to bot 
+          if strings.Contains(msgText, "/getusers") {
+            command = "/getusers"
+          } else if strings.Contains(msgText, "/getbans") {
+            command = "/getbans"
           }
-        }
+
+          //handle commands 
+          switch command {
+          case "/ban":
+            handlers.Ban(replyMsgId)
+          case "/unban":
+            handlers.UnBan(replyMsgId)
+          case "/reply":
+            handlers.Reply(bot, msgText, usrName, replyMsgId, adminsChatID)
+          case "/getusers":
+            handlers.GetUsers(bot, adminsChatID)
+          case "/getbans":
+            handlers.GetBans(bot, adminsChatID)
+          }
+          
+          //takes
+          if chatID != adminsChatID {
+            switch msgText {
+            case "/start":
+              handlers.Start(chatID, bot)
+            default:
+              if chatID != adminsChatID {
+                handlers.TakeTxt(chatID, adminsChatID, usrID, msgText, usrName, bot)
+              }
+            }
+          } 
+        } 
       } 
     }
   }
