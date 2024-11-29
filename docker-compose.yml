@@ -1,0 +1,27 @@
+services:
+  bot:
+    build: .
+    depends_on:
+      - db
+    networks:
+      - bot-network
+    restart: always
+    container_name: bot-cf
+  db:
+    image: postgres
+    container_name: bot-cf-db
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - bot-network
+
+networks:
+  bot-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
