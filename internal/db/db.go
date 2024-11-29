@@ -1,18 +1,12 @@
 package db
 
 import (
-<<<<<<< Updated upstream
-  "database/sql"
-  _ "github.com/lib/pq"
-  "log"
-=======
 	"bot-cf-simple/internal/logger"
 	"database/sql"
-	"errors"
+	"log"
 	"strconv"
 
 	_ "github.com/lib/pq"
->>>>>>> Stashed changes
 )
 
 var db *sql.DB
