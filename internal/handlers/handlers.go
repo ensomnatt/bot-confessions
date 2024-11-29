@@ -219,7 +219,7 @@ func GetUsers(bot *tg.BotAPI, adminsChatID int64) {
       bannedStr = "да" 
     }
 
-    usersInfo = append(usersInfo, fmt.Sprintf("ID: %d,\nимя: %s,\nзабанен: %s", v.ID, v.UserName, bannedStr))
+    usersInfo = append(usersInfo, fmt.Sprintf("ID: %d,\nимя: @%s,\nзабанен: %s", v.ID, v.UserName, bannedStr))
   }
 
   msg := tg.NewMessage(adminsChatID, strings.Join(usersInfo, "\n\n"))
@@ -233,7 +233,7 @@ func GetBans(bot *tg.BotAPI, adminsChatID int64) {
 
   var banned_users_info []string
   for _, v := range banned_users {
-    banned_users_info = append(banned_users_info, fmt.Sprintf("ID: %d,\nимя: %s", v.ID, v.UserName))
+    banned_users_info = append(banned_users_info, fmt.Sprintf("ID: %d,\nимя: @%s", v.ID, v.UserName))
   }
 
   msg := tg.NewMessage(adminsChatID, strings.Join(banned_users_info, "   ") + "   \n\n")
