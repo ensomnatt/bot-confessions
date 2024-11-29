@@ -236,3 +236,17 @@ func UnBan(msgID int64) {
   db.UnBan(usrID)
   logUnBan()
 }
+
+func GetUsers(bot *tg.BotAPI, adminsChatID int64) {
+  users := db.GetUsers()
+
+  msg := tg.NewMessage(adminsChatID, strings.Join(users, "\n"))
+  bot.Send(msg)
+}
+
+func GetBans(bot *tg.BotAPI, adminsChatID int64) {
+  banned_users := db.GetBans()
+
+  msg := tg.NewMessage(adminsChatID, strings.Join(banned_users, "\n"))
+  bot.Send(msg)
+}

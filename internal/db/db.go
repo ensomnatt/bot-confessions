@@ -1,9 +1,18 @@
 package db
 
 import (
+<<<<<<< Updated upstream
   "database/sql"
   _ "github.com/lib/pq"
   "log"
+=======
+	"bot-cf-simple/internal/logger"
+	"database/sql"
+	"errors"
+	"strconv"
+
+	_ "github.com/lib/pq"
+>>>>>>> Stashed changes
 )
 
 var db *sql.DB
@@ -151,4 +160,57 @@ func Close() {
   }
 
   log.Println("[DB]: [INFO]: closed database")
+}
+
+func GetUsers() (users []string) {
+  query := `SELECT (user_name, user_id, banned) FROM users`
+  rows, err := db.Query(query)
+  if err != nil {
+    logger.Logger.Warn("не удалось получить список пользователей", "error", err)
+    return nil
+  }
+
+  for rows.Next() {
+    var usrName string
+    var usrID int64
+    var banned bool
+    err := rows.Scan(&usrName, &usrID, &banned)
+    if err != nil {
+      logger.Logger.Warn("не удалось получить список пользователей", "error", err)
+      return nil
+    } else {
+      var x string
+      if banned == true {
+        x = "забанен"
+      } else {
+        x = "не забанен"
+      }
+      users = append(users, usrName, strconv.Itoa(int(usrID)), x)
+    }
+  }
+
+  return users
+}
+
+func GetBans() (banned_users []string) {
+  query := `SELECT (user_name, user_id) FROM users WHERE banned = true`
+  rows, err := db.Query(query)
+  if err != nil {
+    logger.Logger.Warn("не удалось получить список пользователей", "error", err)
+    return nil
+  }
+
+  for rows.Next() {
+    var usrName string
+    var usrID int64
+    err := rows.Scan(&usrName, &usrID)
+    if err != nil {
+      logger.Logger.Warn("не удалось получить список пользователей", "error", err)
+      return nil
+    } else { 
+      banned_users = append(banned_users, usrName, strconv.Itoa(int(usrID)))
+    }
+  }
+
+  return banned_users
 }

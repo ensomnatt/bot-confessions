@@ -14,6 +14,12 @@ import (
 )
 
 func main() {
+<<<<<<< Updated upstream
+=======
+  //init logger
+  logger.Init()
+  //load envs
+>>>>>>> Stashed changes
   err := godotenv.Load(".env")
   if err != nil {
     log.Fatal(err)
@@ -64,16 +70,27 @@ func main() {
 
     //only text
     if msgText != "" {
-      if chatID == adminsChatID && u.Message.ReplyToMessage != nil && u.Message.ReplyToMessage.From.ID == bot.Self.ID {
+      //by admins
+      if chatID == adminsChatID {
         var command string = "/reply"
-        //ban  
-        if strings.Contains(msgText, "/ban") {
-          command = "/ban"
+        //if reply to bot
+        if u.Message.ReplyToMessage != nil && u.Message.ReplyToMessage.From.ID == bot.Self.ID {
+          //ban  
+          if strings.Contains(msgText, "/ban") {
+            command = "/ban"
+          } else if strings.Contains(msgText, "/unban") {
+            command = "/unban"
+          }
         }
-        //unban 
-        if strings.Contains(msgText, "/unban") {
-          command = "/unban"
+
+        //if not reply to bot 
+        if strings.Contains(msgText, "/getusers") {
+          command = "/getusers"
+        } else if strings.Contains(msgText, "/getbans") {
+          command = "/getbans"
         }
+
+        //handle commands 
         switch command {
         case "/ban":
           handlers.Ban(replyMsgId)
@@ -81,6 +98,10 @@ func main() {
           handlers.UnBan(replyMsgId)
         case "/reply":
           handlers.Reply(bot, msgText, usrName, replyMsgId, adminsChatID)
+        case "/getusers":
+          handlers.GetUsers(bot, adminsChatID)
+        case "/getbans":
+          handlers.GetBans(bot, adminsChatID)
         }
       } else {
         switch msgText {
