@@ -3,11 +3,11 @@ package main
 import (
 	"bot-cf-simple/internal/db"
 	"bot-cf-simple/internal/handlers"
-	"bot-cf-simple/internal/initBot"
+	initbot "bot-cf-simple/internal/initBot"
+	"bot-cf-simple/internal/logger"
 	"bot-cf-simple/internal/texts"
 	"os"
 	"strings"
-  "bot-cf-simple/internal/logger"
 
 	tg "github.com/OvyFlash/telegram-bot-api"
 	"github.com/joho/godotenv"
@@ -68,16 +68,27 @@ func main() {
 
     //only text
     if msgText != "" {
-      if chatID == adminsChatID && u.Message.ReplyToMessage != nil && u.Message.ReplyToMessage.From.ID == bot.Self.ID {
-        var command string = "/reply"
-        //ban  
-        if strings.Contains(msgText, "/ban") {
-          command = "/ban"
-        }
-        //unban 
-        if strings.Contains(msgText, "/unban") {
-          command = "/unban"
-        }
+      //commands
+      if chatID == adminsChatID { 
+        var command string
+        //if replys
+        if u.Message.ReplyToMessage != nil && u.Message.ReplyToMessage.From.ID == bot.Self.ID {
+          if strings.Contains(msgText, "/ban") {
+            command = "/ban"
+          } else if strings.Contains(msgText, "/unban") {
+            command = "/unban"             
+          } else {
+            command = "/reply"
+          }
+        } else {
+          if strings.Contains(msgText, "/getusers") {
+            command = "/getusers"
+          } else if strings.Contains(msgText, "/getbans") {
+            command = "/getbans"
+          }
+        } 
+
+        //handle commands
         switch command {
         case "/ban":
           handlers.Ban(replyMsgId, usrName)
@@ -85,6 +96,10 @@ func main() {
           handlers.UnBan(replyMsgId, usrName)
         case "/reply":
           handlers.Reply(bot, msgText, usrName, replyMsgId, adminsChatID)
+        case "/getusers":
+          handlers.GetUsers(bot, adminsChatID)
+        case "/getbans":
+          handlers.GetBans(bot, adminsChatID)
         }
       } else {
         switch msgText {

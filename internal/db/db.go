@@ -9,6 +9,12 @@ import (
 
 var db *sql.DB
 
+type User struct {
+  ID int64 
+  UserName string
+  Banned bool
+}
+
 func Init(connStr string) {
   //connect to database
   var err error
@@ -27,9 +33,9 @@ func Init(connStr string) {
   _, err = db.Exec(query)
   if err != nil {
     logger.Logger.Error("не удалось создать таблицу takes", "error", err)
-  }
-
-  logger.Logger.Debug("таблица takes создана")
+  } else {
+     logger.Logger.Debug("таблица takes создана")
+  } 
 
   //create users table 
   query = `CREATE TABLE IF NOT EXISTS users (
@@ -41,9 +47,7 @@ func Init(connStr string) {
   _, err = db.Exec(query)
   if err != nil {
     logger.Logger.Error("не удалось создать таблицу users", "error", err)
-  }
-
-  logger.Logger.Debug("таблица users создана")
+  } else { logger.Logger.Debug("таблица users создана") }
 
   err = db.Ping()
   if err != nil {
@@ -162,4 +166,51 @@ func Close() {
   }
 
   logger.Logger.Debug("база данных закрыта")
+}
+
+func GetUsers() (users []User) {
+  query := `SELECT user_name, user_id, banned FROM users`
+  rows, err := db.Query(query)
+  if err != nil {
+    logger.Logger.Warn("не удалось получить список пользователей", "error", err)
+  }
+
+  logger.Logger.Debug("получен список пользователей")
+  defer rows.Close()
+
+  for rows.Next() {
+    var user User
+    err := rows.Scan(&user.UserName, &user.ID, &user.Banned)
+    if err != nil {
+      logger.Logger.Warn("удалось получить список пользователей, но не удалось сканировать строки", "error", err)
+    }
+    users = append(users, user)
+  }
+
+  return users
+}
+
+func GetBans() (banned_users []User) {
+  query := `SELECT user_name, user_id FROM users WHERE banned = true`
+  rows, err := db.Query(query)
+  if err != nil {
+    logger.Logger.Warn("не удалось получить список пользователей", "error", err)
+  }
+
+  logger.Logger.Debug("получен список пользователей")
+
+  defer rows.Close()
+
+  for rows.Next() {
+    var user User
+
+    err := rows.Scan(&user.UserName, &user.ID)
+    if err != nil {
+      logger.Logger.Warn("удалось получить список пользователей, но не удалось сканировать строки", "error", err)
+    }
+
+    banned_users = append(banned_users, user)
+  }
+
+  return banned_users
 }

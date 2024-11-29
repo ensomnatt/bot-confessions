@@ -4,6 +4,7 @@ import (
 	"bot-cf-simple/internal/db"
 	"bot-cf-simple/internal/logger"
 	"bot-cf-simple/internal/texts"
+	"fmt"
 	"strings"
 
 	tg "github.com/OvyFlash/telegram-bot-api"
@@ -206,4 +207,37 @@ func UnBan(msgID int64, userName string) {
   usrID := db.GetUsrIDByMsgID(msgID)
 
   db.UnBan(usrID, userName)
+}
+
+func GetUsers(bot *tg.BotAPI, adminsChatID int64) {
+  users := db.GetUsers()
+
+  var usersInfo []string
+  for _, v := range users {
+    bannedStr := "нет"
+    if v.Banned {
+      bannedStr = "да" 
+    }
+
+    usersInfo = append(usersInfo, fmt.Sprintf("ID: %d,\nимя: %s,\nзабанен: %s", v.ID, v.UserName, bannedStr))
+  }
+
+  msg := tg.NewMessage(adminsChatID, strings.Join(usersInfo, "\n\n"))
+  bot.Send(msg)
+
+  logger.Logger.Info("список пользователей был отправлен админам", "list", users)
+}
+
+func GetBans(bot *tg.BotAPI, adminsChatID int64) {
+  banned_users := db.GetBans()
+
+  var banned_users_info []string
+  for _, v := range banned_users {
+    banned_users_info = append(banned_users_info, fmt.Sprintf("ID: %d,\nимя: %s", v.ID, v.UserName))
+  }
+
+  msg := tg.NewMessage(adminsChatID, strings.Join(banned_users_info, "   ") + "   \n\n")
+  bot.Send(msg)
+
+  logger.Logger.Info("список забаненных пользователей был отправлен админам", "list", banned_users)
 }
