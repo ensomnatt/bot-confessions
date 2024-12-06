@@ -58,7 +58,7 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
 
     bot.Send(msg2)
     
-    logger.Logger.Info("тейк был отправлен", "usrID", usrID, "usrName", usrName)
+    logger.Logger.Info("тейк был отправлен", "usrID", usrID, "usrName", usrName, "text", msgText)
     return
   } else if neanon == true {
     //message from user
@@ -79,7 +79,7 @@ func TakeTxt(chatID, adminsChatID, usrID int64, msgText, usrName string, bot *tg
     bot.Send(msg2)
     bot.Send(msg3)
     
-    logger.Logger.Info("тейк был отправлен", "usrID", usrID, "usrName", usrName)
+    logger.Logger.Info("тейк был отправлен", "usrID", usrID, "usrName", usrName, "text", msgText)
     return
   } else {
     msg := tg.NewMessage(chatID, texts.Error)
