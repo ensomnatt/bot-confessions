@@ -13,21 +13,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
-  //init logger
-  logger.Init()
-  
+func main() { 
   //load envs
-  err := godotenv.Load(".env")
+  err := godotenv.Load(".env") 
   if err != nil {
-    logger.Logger.Error("не удалось загрузить .env файл", "error", err)
+    panic(err)
   }
-
-  logger.Logger.Debug("загрузка .env файла завершена", "file", ".env")
 
   connStr := os.Getenv("DB_CONN_STR")
   token := os.Getenv("TOKEN")
   adminsChatIDstr := os.Getenv("ADM_CHAT")
+  env := os.Getenv("ENV")
+
+  //init logger 
+  logger.Init(env)
 
   //init bot and db
   adminsChatID, updates, bot := initbot.New(token, adminsChatIDstr) 
