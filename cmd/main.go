@@ -47,23 +47,26 @@ func main() {
     chatID, msgText, usrName, msgPhoto, msgVideo, msgVoice, msgVideoNote, replyMsgId, usrID := initbot.CreateVars(u)
 
     //photos and videos
-    if len(msgPhoto) > 0 {
-      handlers.Photos(chatID, adminsChatID, usrID, bot, usrName, msgPhoto)
-    }
+    if chatID != adminsChatID {
+      if len(msgPhoto) > 0 {
+        handlers.Photos(chatID, adminsChatID, usrID, bot, usrName, msgPhoto)
+      }
 
-    if msgVideo != nil {
-      handlers.Videos(chatID, adminsChatID, usrID, bot, usrName, *msgVideo)
-    }
+      if msgVideo != nil {
+        handlers.Videos(chatID, adminsChatID, usrID, bot, usrName, *msgVideo)
+      }
 
-    //voices
-    if msgVoice != nil {
-      handlers.Voices(chatID, adminsChatID, usrID, bot, usrName, *msgVoice)
-    }
+      //voices
+      if msgVoice != nil {
+        handlers.Voices(chatID, adminsChatID, usrID, bot, usrName, *msgVoice)
+      }
 
-    //video notes
-    if msgVideoNote != nil {
-      handlers.VideoNotes(chatID, adminsChatID, usrID, bot, usrName, *msgVideoNote)
+      //video notes
+      if msgVideoNote != nil {
+        handlers.VideoNotes(chatID, adminsChatID, usrID, bot, usrName, *msgVideoNote)
+      }
     }
+    
 
     //only text
     if msgText != "" {
